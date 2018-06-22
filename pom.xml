@@ -11,6 +11,11 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <docker.image.name>dynamodb-crud</docker.image.name>
+    
+    <!--Directory that holds Docker file and static content necessary to build the Docker image. -->
+    <docker.image.src.root>src/main/resources/docker</docker.image.src.root>
+                
   </properties>
 
   <dependencies>
@@ -20,6 +25,53 @@
       <artifactId>aws-java-sdk-dynamodb</artifactId>
       <version>1.11.347</version>
     </dependency>
+    
+    <!-- Docker Maven Plugin -->  
+    <dependency>
+      <groupId>com.spotify</groupId>
+      <artifactId>dockerfile-maven-plugin</artifactId>
+      <version>1.4.3</version>
+    </dependency>
   </dependencies>
-   
+  
+  <!--  Need to push image to AWS Image repository -->
+  
+  
+  <build>
+    <plugins>
+    <!-- Build the Docker Image -->
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.2.2</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!--  <contextDirectory>${project.build.directory}/docker</contextDirectory> -->
+          <contextDirectory>${project.basedir}</contextDirectory>
+          <writeTestMetadata>false</writeTestMetadata>
+          <dockerInfoDirectory></dockerInfoDirectory>
+          <verbose>true</verbose>
+          <forceCreation>true</forceCreation>
+          <imageName>${docker.image.name}</imageName>
+          <repository>${docker.image.name}</repository>
+          <tag>${project.version}</tag>
+          <forceTags>true</forceTags>
+          <pullNewerImage>false</pullNewerImage>
+          <imageTags>
+            <imageTag>${project.version}</imageTag>
+          </imageTags>
+          <dockerDirectory>${project.build.directory}/docker</dockerDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+    
 </project>
